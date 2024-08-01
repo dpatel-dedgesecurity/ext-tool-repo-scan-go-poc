@@ -7,107 +7,69 @@ import (
 	"strings"
 )
 
-func detectEnvironment(directory string) string {
-	var DIRECTORY = directory
-	var environment string
+// detectFramework checks each directory and subdirectory for specific framework configuration files
+func detectFramework(baseDir string) (map[string][]string, error) {
+	frameworks := make(map[string][]string) // Map to store directory paths and their frameworks
 
-	// Check for existence of hardhat config files
-	_, err := os.Stat(filepath.Join(DIRECTORY, "hardhat.config.js"))
-	_, err1 := os.Stat(filepath.Join(DIRECTORY, "hardhat.config.ts"))
-	if err == nil || err1 == nil {
-		environment = "hardhat"
-	} else {
-		// Only check for foundry.toml if hardhat config JS doesn't exist
-		_, err = os.Stat(filepath.Join(DIRECTORY, "foundry.toml"))
-		if err == nil {
-			environment = "foundry"
-		} else {
-			// Check for existence of brownie-config.yaml
-			_, err = os.Stat(filepath.Join(DIRECTORY, "brownie-config.yaml"))
-			if err == nil {
-				environment = "brownie"
-			} else {
-
-			}
-		}
-	}
-
-	err = filepath.Walk(DIRECTORY, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
 		// Check if the current path is a directory
 		if info.IsDir() {
-			return nil
-		}
-
-		// Check for hardhat config files
-		if filepath.Base(path) == "hardhat.config.js" || filepath.Base(path) == "hardhat.config.ts" {
-			environment = "hardhat"
-			return filepath.SkipDir // Stop further walking in subdirectories
-		}
-
-		// Check for foundry.toml
-		if filepath.Base(path) == "foundry.toml" {
-			foundryTomlPath := filepath.Join(directory, "foundry.toml")
-			if _, err := os.Stat(foundryTomlPath); os.IsNotExist(err) {
-				return fmt.Errorf("foundry.toml not found in %s", directory)
+			// Skip the directory if it is named 'lib'
+			if filepath.Base(path) == "lib" {
+				return filepath.SkipDir
 			}
-			environment = "foundry"
-			file, err := os.ReadFile(foundryTomlPath)
+
+			// Check for framework files in this directory
+			files, err := os.ReadDir(path)
 			if err != nil {
-				return fmt.Errorf("failed to read foundry.toml: %w", err)
+				return err
 			}
 
-			// Update foundry.toml to include `out = "out"`
-			content := string(file)
-			if !containsOutConfiguration(content) {
-				content += "\nout = \"out\"\n"
-				err = os.WriteFile(foundryTomlPath, []byte(content), 0644)
-				if err != nil {
-					return fmt.Errorf("failed to write foundry.toml: %w", err)
+			var currentFrameworks []string
+			for _, file := range files {
+				if file.IsDir() {
+					continue
+				}
+
+				switch filepath.Base(file.Name()) {
+				case "hardhat.config.js", "hardhat.config.ts":
+					currentFrameworks = append(currentFrameworks, "hardhat")
+				case "foundry.toml":
+					currentFrameworks = append(currentFrameworks, "foundry")
+				case "brownie-config.yaml":
+					currentFrameworks = append(currentFrameworks, "brownie")
 				}
 			}
-			return filepath.SkipDir // Stop further walking in subdirectories
-		}
 
-		// Check for brownie-config.yaml
-		if filepath.Base(path) == "brownie-config.yaml" {
-			environment = "brownie"
-			return filepath.SkipDir // Stop further walking in subdirectories
+			// If we found any framework files in this directory
+			if len(currentFrameworks) > 0 {
+				frameworks[path] = currentFrameworks
+			}
 		}
 
 		return nil
 	})
 
 	if err != nil {
-		fmt.Printf("Error walking the path %v: %v\n", directory, err)
-		return "unknown"
+		return nil, fmt.Errorf("error walking the path %v: %w", baseDir, err)
 	}
 
-	if environment == "" {
-		environment = "unknown"
+	// Check if any frameworks were found
+	if len(frameworks) == 0 {
+		fmt.Println("No frameworks found.")
+		return nil, nil
 	}
 
-	fmt.Println("Detected Environment:", environment)
-
-	// check if environment is unknown
-	if environment == "unknown" {
-		// Create a temporary Hardhat project
-		if err := moveSolidityFiles(directory); err != nil {
-			fmt.Printf("Error: %v\n", err)
+	// Handle multiple frameworks in the same directory
+	for dir, fwks := range frameworks {
+		if len(fwks) > 1 {
+			fmt.Printf("Directory %s contains multiple frameworks: %s\n", dir, strings.Join(fwks, ", "))
 		}
-		if err := setupHardhatProject(directory); err != nil {
-			fmt.Printf("Error setting up Hardhat project: %v\n", err)
-			return "unknown"
-		}
-		environment = "hardhat"
 	}
 
-	return environment
-
-}
-func containsOutConfiguration(content string) bool {
-	return strings.Contains(content, "out =")
+	return frameworks, nil
 }

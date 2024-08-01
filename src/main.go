@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
+	"strings"
+
+	//	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -14,7 +16,8 @@ var tool string
 var repoURL string
 var outputDirPath string
 var clonedRepoDir string // New variable to store the path of the cloned repository
-var environment string
+var frameworkwithpath string
+var packagewithpath string
 
 func init() {
 	// Load .env file
@@ -48,13 +51,13 @@ func main() {
 	// Print the URL for debugging
 	fmt.Printf("Cloning repository from URL: %s\n", repoURL)
 
-	// Call the CloneRepository function
+	//Call the CloneRepository function
 	clonedRepoDir, err := CloneRepository(repoURL)
 	if err != nil {
 		fmt.Printf("Error cloning repository: %v\n", err)
 		return
 	}
-	//clonedRepoDir = "/home/im/dedge/ext-tool-repo-scan-go/input_repos/2024-05-munchables"
+	//clonedRepoDir = "/home/im/dedge/ext-tool-repo-scan-go/input_repos/2024-04-teller-finance"
 	fmt.Printf("Repository successfully cloned into: %s\n", clonedRepoDir)
 
 	// Remove and create autogen_output directory
@@ -73,32 +76,49 @@ func main() {
 	fmt.Println(directory, "using cloned repo directory")
 
 	// Install dependencies based on environment
-	environment = detectEnvironment(directory)
+	frameworkwithpath, err := detectFramework(directory)
+	if err != nil {
+		fmt.Printf("Error detecting frameworks: %v\n", err)
+		return
+	}
+	for dir, fwks := range frameworkwithpath {
+		fmt.Printf("Directory: %s, Frameworks: %s\n", dir, strings.Join(fwks, ", "))
+	}
 
-	fmt.Printf("Detected environment: %s\n", environment)
-	if err := installDependencies(directory, environment); err != nil {
+	packagewithpath, err := detectPackageInstaller(directory)
+	if err != nil {
+		fmt.Printf("Error detecting frameworks: %v\n", err)
+		return
+	}
+	// for dir, fwks := range packagewithpath {
+	// 	fmt.Printf("packages path: %s, packages: %s\n", dir, strings.Join(fwks, ", "))
+	// }
+
+	if err := installDependencies(packagewithpath); err != nil {
 		fmt.Printf("Error installing dependencies: %v\n", err)
 		return
 	}
 
 	// Compile the framework
-	result := compileRepository(directory, environment)
-	if result.Success {
-		fmt.Println("Compilation succeeded")
-	} else {
-		fmt.Printf("Compilation failed: %v\n", result.Err)
-		// handleGitError(result.err, directory, env) // Uncomment if needed
-	}
+	results := compileRepositories(frameworkwithpath)
 
-	// Run the specified tool
-	startTime := time.Now()
-	if err := runTool(tool, directory, outputDirPath); err != nil {
-		fmt.Printf("Error running %s: %v\n", tool, err)
-		return
+	// Handle the results
+	for directory, result := range results {
+		if result.Success {
+			fmt.Printf("Compilation succeeded in directory %s\n", directory)
+		} else {
+			fmt.Printf("Compilation failed in directory %s: %v\n", directory, result.Err)
+		}
 	}
-	endTime := time.Now()
-	executionTime := endTime.Sub(startTime)
-	fmt.Printf("Execution time: %s\n", executionTime)
+	// Run the specified tool
+	// startTime := time.Now()
+	// if err := runTool(tool, frameworkwithpath, outputDirPath, results); err != nil {
+	// 	fmt.Printf("Error running %s: %v\n", tool, err)
+	// 	return
+	// }
+	// endTime := time.Now()
+	// executionTime := endTime.Sub(startTime)
+	// fmt.Printf("Execution time: %s\n", executionTime)
 
 	// Get details about Solidity files in the project
 	if err := getSolidityFilesDetails(directory, outputDirPath); err != nil {

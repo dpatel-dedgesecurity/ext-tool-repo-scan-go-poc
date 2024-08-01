@@ -37,9 +37,9 @@ func handleNodeVersionError(err error, directory string) error {
 		fmt.Printf("Node.js version switched to %s.\n", nodeVersion)
 
 		// Re-run the installDependencies function
-		if err := installDependencies(directory, environment); err != nil {
-			return fmt.Errorf("failed to install dependencies after updating Node.js: %w", err)
-		}
+		// if err := installDependencies(packagewithpath); err != nil {
+		// 	return fmt.Errorf("failed to install dependencies after updating Node.js: %w", err)
+		// }
 	} else {
 		// If the error is not related to Node.js version, return the original error
 		return fmt.Errorf("unexpected error: %w", err)

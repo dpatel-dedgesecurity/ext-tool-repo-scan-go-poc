@@ -49,51 +49,51 @@ public mint or burn found in MockMunchNFT.burn(uint256) (src/mock/MockMunchNFT.s
 FundTreasuryDistributor.receiveTokens(IDistributor.TokenBag[]) (src/distributors/FundTreasuryDistributor.sol#26-50) use transfer in a loop: address(_treasury).transfer(amount) (src/distributors/FundTreasuryDistributor.sol#38)
 Reference:  
 
-NFTAttributesManagerV1.getGameAttributes(uint256,MunchablesCommonLib.GameAttributeIndex[]).i_scope_0 (src/managers/NFTAttributeManagerV1.sol#157) is a local variable never initialized
-referrer is a member never initialized in ClaimManager._claimPoints(address).player (src/managers/ClaimManager.sol#203)
-MockNFTOverlord.levelUp(uint256,bytes).zeroed (src/mock/MockNFTOverlord.sol#211) is a local variable never initialized
-tokenId is a member never initialized in MigrationManager._migrateNFTs(address,address,uint256[]).snapshot (src/managers/MigrationManager.sol#300)
-ConfigStorage.getUintArray(StorageKey).i (src/config/ConfigStorage.sol#104) is a local variable never initialized
-ConfigStorage.getAddressArray(StorageKey).i (src/config/ConfigStorage.sol#289) is a local variable never initialized
-NFTOverlord._calculateRaritySpecies(bytes,MunchablesCommonLib.Rarity).selectedSpeciesId (src/overlords/NFTOverlord.sol#376) is a local variable never initialized
-RewardsManager.claimYieldForContracts(address[]).ongoingETH (src/managers/RewardsManager.sol#114) is a local variable never initialized
-NFTOverlord.levelUp(uint256,bytes).currentValue (src/overlords/NFTOverlord.sol#260) is a local variable never initialized
-FundTreasuryDistributor.receiveTokens(IDistributor.TokenBag[]).i (src/distributors/FundTreasuryDistributor.sol#31) is a local variable never initialized
-LockManager.setLockDuration(uint256).i (src/managers/LockManager.sol#252) is a local variable never initialized
-SnuggeryManager._findSnuggeryIndex(address,uint256).i (src/managers/SnuggeryManager.sol#310) is a local variable never initialized
-AccountManager.spraySchnibblesPropose(address[],uint256[]).i (src/managers/AccountManager.sol#163) is a local variable never initialized
-AccountManager.addSubAccount(address).i (src/managers/AccountManager.sol#244) is a local variable never initialized
-LockManager._execUSDPriceUpdate().i (src/managers/LockManager.sol#512) is a local variable never initialized
-NFTAttributesManagerV1.getGameAttributes(uint256,MunchablesCommonLib.GameAttributeIndex[]).i (src/managers/NFTAttributeManagerV1.sol#150) is a local variable never initialized
 MockNFTOverlord.levelUp(uint256,bytes).i (src/mock/MockNFTOverlord.sol#212) is a local variable never initialized
-MunchadexManager.getMunchadexInfo(address).i_scope_0 (src/managers/MunchadexManager.sol#130) is a local variable never initialized
-MockNFTOverlord._calculateRaritySpecies(bytes,MunchablesCommonLib.Rarity).selectedSpeciesId (src/mock/MockNFTOverlord.sol#338) is a local variable never initialized
-ConfigStorage.setUintArray(StorageKey,uint256[],bool).i (src/config/ConfigStorage.sol#77) is a local variable never initialized
-NFTOverlord.levelUp(uint256,bytes).zeroed (src/overlords/NFTOverlord.sol#244) is a local variable never initialized
-NFTAttributesManagerV1.getGameAttributes(uint256,MunchablesCommonLib.GameAttributeIndex[]).j (src/managers/NFTAttributeManagerV1.sol#164) is a local variable never initialized
-ConfigStorage.getSmallUintArray(StorageKey).i (src/config/ConfigStorage.sol#147) is a local variable never initialized
-SnuggeryManager._recalculateChonks(address).i (src/managers/SnuggeryManager.sol#337) is a local variable never initialized
-BonusManager._calculateMunchadexBonus(address).i (src/managers/BonusManager.sol#226) is a local variable never initialized
-AccountManager.execSprayProposal(address).i (src/managers/AccountManager.sol#197) is a local variable never initialized
-MockSnuggeryManager.setSnuggeryForTest(address,MunchablesCommonLib.SnuggeryNFT[]).i (src/mock/MockSnuggeryManager.sol#18) is a local variable never initialized
-BonusManager.getHarvestBonus(address)._migrationBonus (src/managers/BonusManager.sol#131) is a local variable never initialized
-PrimordialManager._reconfigure().i (src/managers/PrimordialManager.sol#46) is a local variable never initialized
-RewardsManager.claimYieldForContracts(address[]).ongoingWETH (src/managers/RewardsManager.sol#115) is a local variable never initialized
-ConfigStorage.setAddresses(StorageKey[],address[],bool).i (src/config/ConfigStorage.sol#243) is a local variable never initialized
-LockManager.getLockedWeightedValue(address).i (src/managers/LockManager.sol#466) is a local variable never initialized
 registrationDate is a member never initialized in LockManager._lock(address,uint256,address,address)._player (src/managers/LockManager.sol#319)
-SnuggeryManager.getTotalChonk(address).i (src/managers/SnuggeryManager.sol#289) is a local variable never initialized
-MunchadexManager.getMunchadexInfo(address).i (src/managers/MunchadexManager.sol#124) is a local variable never initialized
-NFTOverlord.levelUp(uint256,bytes).i (src/overlords/NFTOverlord.sol#245) is a local variable never initialized
-ConfigStorage.setSmallUintArray(StorageKey,uint8[],bool).i (src/config/ConfigStorage.sol#119) is a local variable never initialized
-ConfigStorage.getSmallIntArray(StorageKey).i (src/config/ConfigStorage.sol#205) is a local variable never initialized
-ConfigStorage.setSmallIntArray(StorageKey,int16[],bool).i (src/config/ConfigStorage.sol#177) is a local variable never initialized
-RewardsManager.claimYieldForContracts(address[]).ongoingUSDB (src/managers/RewardsManager.sol#116) is a local variable never initialized
-MockNFTOverlord.levelUp(uint256,bytes).currentValue (src/mock/MockNFTOverlord.sol#227) is a local variable never initialized
-ConfigStorage.setAddressArray(StorageKey,address[],bool).i (src/config/ConfigStorage.sol#262) is a local variable never initialized
-ClaimManager.burnNFTsForPoints(address,uint8[]).i (src/managers/ClaimManager.sol#123) is a local variable never initialized
-maxSnuggerySize is a member never initialized in BonusManager._calculateLevelBonus(address).player (src/managers/BonusManager.sol#197)
+ConfigStorage.getAddressArray(StorageKey).i (src/config/ConfigStorage.sol#289) is a local variable never initialized
+MockNFTOverlord._calculateRaritySpecies(bytes,MunchablesCommonLib.Rarity).selectedSpeciesId (src/mock/MockNFTOverlord.sol#338) is a local variable never initialized
+referrer is a member never initialized in ClaimManager._claimPoints(address).player (src/managers/ClaimManager.sol#203)
 NFTAttributesManagerV1.setGameAttributes(uint256,MunchablesCommonLib.NFTGameAttribute[]).i (src/managers/NFTAttributeManagerV1.sol#92) is a local variable never initialized
+MockSnuggeryManager.setSnuggeryForTest(address,MunchablesCommonLib.SnuggeryNFT[]).i (src/mock/MockSnuggeryManager.sol#18) is a local variable never initialized
+PrimordialManager._reconfigure().i (src/managers/PrimordialManager.sol#46) is a local variable never initialized
+NFTOverlord.levelUp(uint256,bytes).zeroed (src/overlords/NFTOverlord.sol#244) is a local variable never initialized
+ConfigStorage.setUintArray(StorageKey,uint256[],bool).i (src/config/ConfigStorage.sol#77) is a local variable never initialized
+ConfigStorage.getSmallUintArray(StorageKey).i (src/config/ConfigStorage.sol#147) is a local variable never initialized
+SnuggeryManager._findSnuggeryIndex(address,uint256).i (src/managers/SnuggeryManager.sol#310) is a local variable never initialized
+NFTAttributesManagerV1.getGameAttributes(uint256,MunchablesCommonLib.GameAttributeIndex[]).i_scope_0 (src/managers/NFTAttributeManagerV1.sol#157) is a local variable never initialized
+SnuggeryManager.getTotalChonk(address).i (src/managers/SnuggeryManager.sol#289) is a local variable never initialized
+RewardsManager.claimYieldForContracts(address[]).ongoingETH (src/managers/RewardsManager.sol#114) is a local variable never initialized
+MunchadexManager.getMunchadexInfo(address).i (src/managers/MunchadexManager.sol#124) is a local variable never initialized
+LockManager._execUSDPriceUpdate().i (src/managers/LockManager.sol#512) is a local variable never initialized
+SnuggeryManager._recalculateChonks(address).i (src/managers/SnuggeryManager.sol#337) is a local variable never initialized
+ConfigStorage.setAddresses(StorageKey[],address[],bool).i (src/config/ConfigStorage.sol#243) is a local variable never initialized
+AccountManager.addSubAccount(address).i (src/managers/AccountManager.sol#244) is a local variable never initialized
+maxSnuggerySize is a member never initialized in BonusManager._calculateLevelBonus(address).player (src/managers/BonusManager.sol#197)
+LockManager.getLockedWeightedValue(address).i (src/managers/LockManager.sol#466) is a local variable never initialized
+NFTOverlord.levelUp(uint256,bytes).i (src/overlords/NFTOverlord.sol#245) is a local variable never initialized
+AccountManager.execSprayProposal(address).i (src/managers/AccountManager.sol#197) is a local variable never initialized
+tokenId is a member never initialized in MigrationManager._migrateNFTs(address,address,uint256[]).snapshot (src/managers/MigrationManager.sol#300)
+MockNFTOverlord.levelUp(uint256,bytes).currentValue (src/mock/MockNFTOverlord.sol#227) is a local variable never initialized
+ClaimManager.burnNFTsForPoints(address,uint8[]).i (src/managers/ClaimManager.sol#123) is a local variable never initialized
+ConfigStorage.getSmallIntArray(StorageKey).i (src/config/ConfigStorage.sol#205) is a local variable never initialized
+NFTAttributesManagerV1.getGameAttributes(uint256,MunchablesCommonLib.GameAttributeIndex[]).i (src/managers/NFTAttributeManagerV1.sol#150) is a local variable never initialized
+BonusManager.getHarvestBonus(address)._migrationBonus (src/managers/BonusManager.sol#131) is a local variable never initialized
+ConfigStorage.setSmallIntArray(StorageKey,int16[],bool).i (src/config/ConfigStorage.sol#177) is a local variable never initialized
+RewardsManager.claimYieldForContracts(address[]).ongoingWETH (src/managers/RewardsManager.sol#115) is a local variable never initialized
+MockNFTOverlord.levelUp(uint256,bytes).zeroed (src/mock/MockNFTOverlord.sol#211) is a local variable never initialized
+AccountManager.spraySchnibblesPropose(address[],uint256[]).i (src/managers/AccountManager.sol#163) is a local variable never initialized
+BonusManager._calculateMunchadexBonus(address).i (src/managers/BonusManager.sol#226) is a local variable never initialized
+ConfigStorage.setSmallUintArray(StorageKey,uint8[],bool).i (src/config/ConfigStorage.sol#119) is a local variable never initialized
+NFTOverlord._calculateRaritySpecies(bytes,MunchablesCommonLib.Rarity).selectedSpeciesId (src/overlords/NFTOverlord.sol#376) is a local variable never initialized
+FundTreasuryDistributor.receiveTokens(IDistributor.TokenBag[]).i (src/distributors/FundTreasuryDistributor.sol#31) is a local variable never initialized
+NFTAttributesManagerV1.getGameAttributes(uint256,MunchablesCommonLib.GameAttributeIndex[]).j (src/managers/NFTAttributeManagerV1.sol#164) is a local variable never initialized
+RewardsManager.claimYieldForContracts(address[]).ongoingUSDB (src/managers/RewardsManager.sol#116) is a local variable never initialized
+ConfigStorage.setAddressArray(StorageKey,address[],bool).i (src/config/ConfigStorage.sol#262) is a local variable never initialized
+MunchadexManager.getMunchadexInfo(address).i_scope_0 (src/managers/MunchadexManager.sol#130) is a local variable never initialized
+NFTOverlord.levelUp(uint256,bytes).currentValue (src/overlords/NFTOverlord.sol#260) is a local variable never initialized
+ConfigStorage.getUintArray(StorageKey).i (src/config/ConfigStorage.sol#104) is a local variable never initialized
+LockManager.setLockDuration(uint256).i (src/managers/LockManager.sol#252) is a local variable never initialized
 Reference:  
 
 ERC1967Utils.upgradeToAndCall(address,bytes) (lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Utils.sol#83-92)have ignores return value in Address.functionDelegateCall(newImplementation,data) (lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Utils.sol#88)
@@ -639,9 +639,9 @@ run process
 check register
 check printer_cls
 begin run detectors
-An error occurred: maximum recursion depth exceeded while pickling an object
+An error occurred: maximum recursion depth exceeded while calling a Python object
 after for recrusion
-Execution time for Falcon: 33.396732895s
+Execution time for Falcon: 40.668330759s
 /home/im/dedge/ext-tool-repo-scan-go/input_repos/2024-05-munchables/src/config/BaseConfigStorage.sol: Abstract Contract (1): 88 lines
 /home/im/dedge/ext-tool-repo-scan-go/input_repos/2024-05-munchables/src/config/BaseConfigStorageUpgradeable.sol: Abstract Contract (1): 23 lines
 /home/im/dedge/ext-tool-repo-scan-go/input_repos/2024-05-munchables/src/config/ConfigStorage.sol: Smart Contract (1): 362 lines
