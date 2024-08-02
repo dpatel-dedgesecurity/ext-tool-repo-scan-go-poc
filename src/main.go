@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
 
 	//	"time"
 
@@ -45,6 +47,8 @@ func init() {
 
 	// Construct outputDirPath with the repository name and "autogen_output"
 	outputDirPath = fmt.Sprintf("%s/%s_autogen_output", outputDirPath, repoName)
+	rand.Seed(time.Now().UnixNano())
+
 }
 
 func main() {
@@ -53,12 +57,23 @@ func main() {
 
 	//Call the CloneRepository function
 	clonedRepoDir, err := CloneRepository(repoURL)
-	if err != nil {
-		fmt.Printf("Error cloning repository: %v\n", err)
-		return
-	}
 	//clonedRepoDir = "/home/im/dedge/ext-tool-repo-scan-go/input_repos/2024-04-teller-finance"
 	fmt.Printf("Repository successfully cloned into: %s\n", clonedRepoDir)
+
+	// // search for .env.example in dir and rename it with .env if available
+	// renameEnvExample(clonedRepoDir)
+	// if err != nil {
+	// 	fmt.Printf("Error cloning repository: %v\n", err)
+	// 	return
+	// }
+
+	// // Example usage
+	// jsPath := "./defaultHardhat.config.js"
+	// tsPath := "./defaultHardhat.config.ts"
+
+	// if err := replaceConfigFile(jsPath, tsPath, clonedRepoDir); err != nil {
+	// 	fmt.Printf("Error: %v\n", err)
+	// }
 
 	// Remove and create autogen_output directory
 	if err := os.RemoveAll(outputDirPath); err != nil {
@@ -83,8 +98,18 @@ func main() {
 	}
 	for dir, fwks := range frameworkwithpath {
 		fmt.Printf("Directory: %s, Frameworks: %s\n", dir, strings.Join(fwks, ", "))
+		err = generateEnvFromFile(dir, dir+"/.env")
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
+	// if there is no framework found
+	if len(frameworkwithpath) == 0 {
+		handleNoFrameworkRepo(directory)
+	}
+
+	//Dependecy Installtion
 	packagewithpath, err := detectPackageInstaller(directory)
 	if err != nil {
 		fmt.Printf("Error detecting frameworks: %v\n", err)
@@ -99,10 +124,15 @@ func main() {
 		return
 	}
 
-	// Compile the framework
+	err = configureFoundryTOML(frameworkwithpath)
+	if err != nil {
+		fmt.Println("🚀 ~ funcmain ~ err:", err)
+	}
+
+	// Compile the frameworks even if there are multiple framework configs it will compile for all of them
 	results := compileRepositories(frameworkwithpath)
 
-	// Handle the results
+	// This loop is just to print logs on console
 	for directory, result := range results {
 		if result.Success {
 			fmt.Printf("Compilation succeeded in directory %s\n", directory)
@@ -110,17 +140,18 @@ func main() {
 			fmt.Printf("Compilation failed in directory %s: %v\n", directory, result.Err)
 		}
 	}
-	// Run the specified tool
-	// startTime := time.Now()
-	// if err := runTool(tool, frameworkwithpath, outputDirPath, results); err != nil {
-	// 	fmt.Printf("Error running %s: %v\n", tool, err)
-	// 	return
-	// }
-	// endTime := time.Now()
-	// executionTime := endTime.Sub(startTime)
-	// fmt.Printf("Execution time: %s\n", executionTime)
 
-	// Get details about Solidity files in the project
+	// Run the specified tool
+	startTime := time.Now()
+	if err := runTool(tool, frameworkwithpath, outputDirPath, results); err != nil {
+		fmt.Printf("Error running %s: %v\n", tool, err)
+		return
+	}
+	endTime := time.Now()
+	executionTime := endTime.Sub(startTime)
+	fmt.Printf("Execution time: %s\n", executionTime)
+
+	// Get details about Solidity files in the project to ammend in output
 	if err := getSolidityFilesDetails(directory, outputDirPath); err != nil {
 		fmt.Printf("Error getting Solidity files details: %v\n", err)
 		return

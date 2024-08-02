@@ -218,3 +218,18 @@ func moveSolidityFiles(rootDir string) error {
 	fmt.Println("All Solidity files have been moved successfully.")
 	return nil
 }
+
+func handleNoFrameworkRepo(directory string) {
+	moveSolidityFiles(directory)
+	setupHardhatProject(directory)
+
+	// Manually Framework creattion is comeplted
+
+	//Re invoke Framework Detection to proceed further
+	frameworkwithpath, err := detectFramework(directory)
+	if err != nil {
+		fmt.Printf("Error detecting frameworks: %v\n", err)
+		return
+	}
+	fmt.Println("🚀 ~ funchandleNoFrameworkRepo ~ frameworkwithpath:", frameworkwithpath)
+}

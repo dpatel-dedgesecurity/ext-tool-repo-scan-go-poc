@@ -45,6 +45,8 @@ func detectPackageInstaller(baseDir string) (map[string]string, error) {
 				switch file.Name() {
 				case "yarn.lock":
 					yarnFound = true
+				case "package.json":
+					yarnFound = true
 				case "package-lock.json":
 					npmFound = true
 				case ".gitmodules":
@@ -82,6 +84,12 @@ func detectPackageInstaller(baseDir string) (map[string]string, error) {
 }
 
 func installDependencies(installers map[string]string) error {
+
+	if len(installers) == 0 {
+		fmt.Println("Moving ahead without installing dependencies.")
+		return nil
+	}
+
 	for directory, installer := range installers {
 		// Check if node_modules exists and skip the directory if it does
 		nodeModulesPath := filepath.Join(directory, "node_modules")
