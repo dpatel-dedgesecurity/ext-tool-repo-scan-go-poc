@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"services/ext_tools/sast"
 	"services/ext_tools/sast/falcon"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -13,11 +15,12 @@ import (
 // Global variables
 var tool string
 var repoURL string
-var outputDirPath string
+var outputDir string
 var clonedRepoDir string // New variable to store the path of the cloned repository
 var frameworkwithpath string
 var packagewithpath string
 
+// var outputDir string
 var list_of_detected_paths []string
 var compiled_paths []string
 
@@ -28,11 +31,13 @@ func init() {
 	}
 
 	// Retrieve the value of REPO_OUTPUT_PATH, REPO_URL, and TOOL environment variables
-	outputDirPath = os.Getenv("REPO_OUTPUT_PATH")
+	outputDir = os.Getenv("REPO_OUTPUT_PATH")
 	repoURL = os.Getenv("REPO_URL")
 	tool = os.Getenv("TOOL")
 
-	if outputDirPath == "" {
+	// Create the scanned_output directory in the root path
+
+	if outputDir == "" {
 		log.Fatal("Error: REPO_OUTPUT_PATH environment variable is not set")
 	}
 	if tool == "" {
@@ -42,10 +47,34 @@ func init() {
 	// // Construct outputDirPath with the repository name and "autogen_output"
 	// outputDirPath = fmt.Sprintf("%s/%s_autogen_output", outputDirPath, repoName)
 	// rand.Seed(time.Now().UnixNano())
+
+	// Extract the repository name from repoURL
+	repoName := sast.ExtractRepoName(repoURL)
+	if repoName == "" {
+		log.Fatal("Error: Could not extract repository name from REPO_URL")
+	}
+
+	// Construct outputDirPath with the repository name and "autogen_output"
+	outputDir = fmt.Sprintf("%s/%s_scaned_output", outputDir, repoName)
+	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
 
+	// outputDirpath = filepath.Join(outputDir, "scaned_output")
+	// if err := os.MkdirAll(outputDirpath, 0755); err != nil {
+	// 	return
+	// }
+
+	if err := os.RemoveAll(outputDir); err != nil {
+		fmt.Printf("Error removing autogen_output directory: %v\n", err)
+		return
+	}
+
+	if err := os.Mkdir(outputDir, 0755); err != nil {
+		fmt.Printf("Error creating autogen_output directory: %v\n", err)
+		return
+	}
 	clonedRepoDir, err := sast.CloneRepository(repoURL)
 	if err != nil {
 		fmt.Println("❗️ ~ funcmain ~ err ~ Error in cloning repository :", err)

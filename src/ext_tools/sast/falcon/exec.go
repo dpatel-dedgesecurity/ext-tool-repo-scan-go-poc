@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"services/ext_tools/sast"
 
 	"time"
 )
@@ -57,7 +58,7 @@ func RunTool(compilationResults CompilationResult) error {
 				if framework == "hardhat" && len(successfulPathsByFramework["foundry"]) > 0 {
 					// If both Hardhat and Foundry succeeded, prioritize Hardhat
 					if err := runFalcon(path, "hardhat"); err != nil {
-						//fmt.Println("error running Falcon for Hardhat framework in path %s: %w", path, err)
+						fmt.Println("error running Falcon for Hardhat framework in path %s: %w", path, err)
 						// fmt.Println("Re-Executing tool with foundry framework in path %s: %w", path, err)
 
 						// if err = runFalcon(path, "foundry"); err != nil {
@@ -96,36 +97,43 @@ func RunTool(compilationResults CompilationResult) error {
 // runFalcon runs the Falcon tool on the specified path with the given framework
 func runFalcon(pathToRunTool, framework string) error {
 	// Get root path from environment variable
-	rootPath := os.Getenv("REPO_OUTPUT_PATH")
-	if rootPath == "" {
-		return fmt.Errorf("ROOT_PATH environment variable is not set")
-	}
-
-	// Create the scanned_output directory in the root path
-	outputDir := filepath.Join(rootPath, "scanned_output")
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
-		return fmt.Errorf("failed to create scanned_output directory: %w", err)
-	}
-
-	// Update file paths to save inside scanned_output directory
-
-	resultsFile := filepath.Join(outputDir, "results.md")
-
-	// Run Falcon based on the framework
-	// if framework == "foundry" {
-	// 	fmt.Println("🚀 ~ func runFalcon ~ framework:", framework)
-	// 	err := sast.ConfigureFoundryTOML(pathToRunTool) // Assuming sast.ConfigureFoundryTOML is defined elsewhere
-	// 	if err != nil {
-	// 		fmt.Println("Error in updating foundry.toml ~ func runFalcon ~ err:", err)
-	// 	} else {
-	// 		fmt.Println("🚀 ~ Updated foundry.toml out field")
-	// 	}
+	// rootPath := os.Getenv("REPO_OUTPUT_PATH")
+	// if rootPath == "" {
+	// 	return fmt.Errorf("ROOT_PATH environment variable is not set")
 	// }
 
+	// // Create the scanned_output directory in the root path
+	// outputDir := filepath.Join(rootPath, "scanned_output")
+	// if err := os.MkdirAll(outputDir, 0755); err != nil {
+	// 	return fmt.Errorf("failed to create scanned_output directory: %w", err)
+	// }
+
+	// Update file paths to save inside scanned_output directory
+	// output_dir := outputDir
+
+	resultsFile := filepath.Join(pathToRunTool, "results.md")
+
+	// Run Falcon based on the framework
+	if framework == "foundry" {
+		fmt.Println("🚀 ~ func runFalcon ~ framework:", framework)
+		err := sast.ConfigureFoundryTOML(pathToRunTool) // Assuming sast.ConfigureFoundryTOML is defined elsewhere
+		if err != nil {
+			fmt.Println("Error in updating foundry.toml ~ func runFalcon ~ err:", err)
+		} else {
+			fmt.Println("🚀 ~ Updated foundry.toml out field")
+		}
+	}
+
 	startTime := time.Now()
-	cmd := exec.Command("falcon", ".", "--checklist", "--json", filepath.Join(outputDir, "output.json"), "--filter-paths", "\\.t\\.sol$,\\.s\\.sol$")
-	if framework != "" {
-		cmd.Args = append(cmd.Args, "--compile-force-framework", framework)
+	cmd := exec.Command("falcon", ".", "--checklist", "--json", filepath.Join(pathToRunTool, "output.json"), "--filter-paths", "\\.t\\.sol$,\\.s\\.sol$")
+
+	switch framework {
+	case "hardhat":
+		cmd.Args = append(cmd.Args, "--compile-force-framework", "hardhat")
+	case "foundry":
+		cmd.Args = append(cmd.Args, "--compile-force-framework", "foundry")
+	default:
+		return fmt.Errorf("unknown framework: %s", framework)
 	}
 	cmd.Dir = pathToRunTool
 

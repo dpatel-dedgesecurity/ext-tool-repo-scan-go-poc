@@ -3,6 +3,7 @@ package sast
 import (
 	"fmt"
 	"io/ioutil"
+	"os/exec"
 	"strings"
 )
 
@@ -54,4 +55,18 @@ func ConfigureFoundryTOML(filePath string) error {
 	}
 
 	return nil
+}
+
+// CompileFoundryProject compiles a Foundry project located in the specified directory
+func CompileFoundryProject(dir string) (string, error) {
+	// Example command; adjust based on your needs
+	cmd := exec.Command("forge", "build")
+	cmd.Dir = dir
+	output, err := cmd.CombinedOutput()
+	fmt.Println(string(output)) // Print output to console
+	if err != nil {
+		return "", fmt.Errorf("foundry compile error: %s", err)
+	}
+
+	return dir, nil
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -220,4 +221,18 @@ func MoveSolidityFiles(cloned_repo_path string) error {
 
 	fmt.Println("All Solidity files have been moved successfully.")
 	return nil
+}
+
+// CompileHardhatProject compiles a Hardhat project located in the specified directory
+func CompileHardhatProject(dir string) (string, error) {
+	// Example command; adjust based on your needs
+	cmd := exec.Command("npx", "hardhat", "compile")
+	cmd.Dir = dir
+	output, err := cmd.CombinedOutput()
+	fmt.Println(string(output)) // Print output to console
+	if err != nil {
+		return "", fmt.Errorf("hardhat compile error: %s", err)
+	}
+
+	return dir, nil
 }
