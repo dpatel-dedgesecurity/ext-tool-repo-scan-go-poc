@@ -65,6 +65,7 @@ func main() {
 	// if err := os.MkdirAll(outputDirpath, 0755); err != nil {
 	// 	return
 	// }
+	
 
 	if err := os.RemoveAll(outputDir); err != nil {
 		fmt.Printf("Error removing autogen_output directory: %v\n", err)
@@ -75,6 +76,8 @@ func main() {
 		fmt.Printf("Error creating autogen_output directory: %v\n", err)
 		return
 	}
+
+	
 	clonedRepoDir, err := sast.CloneRepository(repoURL)
 	if err != nil {
 		fmt.Println("❗️ ~ funcmain ~ err ~ Error in cloning repository :", err)
@@ -88,7 +91,7 @@ func main() {
 	}
 	// fmt.Println("🚀 ~ funcmain ~ compiled_paths:", compiled_paths)
 
-	is_executed, err := falcon.Execute(compiled_paths)
+	is_executed, err := falcon.Execute(compiled_paths,outputDir)
 	if err != nil {
 		fmt.Println("Failed to Execute Tool on given repository !!!")
 	} else if is_executed {

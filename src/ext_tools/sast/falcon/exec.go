@@ -9,11 +9,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"services/ext_tools/sast"
-
 	"time"
 )
 
-func Execute(compilationResults []byte) (bool, error) {
+func Execute(compilationResults []byte, outputDir string) (bool, error) {
 
 	var result CompilationResult
 
@@ -23,7 +22,7 @@ func Execute(compilationResults []byte) (bool, error) {
 		fmt.Println("Error unmarshalling JSON:", err)
 	}
 
-	err = RunTool(result)
+	err = RunTool(result, outputDir)
 	if err != nil {
 		log.Fatalf("Error runnig tool on project: %v", err)
 	}
@@ -31,7 +30,7 @@ func Execute(compilationResults []byte) (bool, error) {
 
 }
 
-func RunTool(compilationResults CompilationResult) error {
+func RunTool(compilationResults CompilationResult, outputDir string) error {
 	// Collect successful paths by framework
 	successfulPathsByFramework := map[string][]string{
 		"hardhat": {},
@@ -57,7 +56,7 @@ func RunTool(compilationResults CompilationResult) error {
 			for _, path := range paths {
 				if framework == "hardhat" && len(successfulPathsByFramework["foundry"]) > 0 {
 					// If both Hardhat and Foundry succeeded, prioritize Hardhat
-					if err := runFalcon(path, "hardhat"); err != nil {
+					if err := runFalcon(path, "hardhat", outputDir); err != nil {
 						fmt.Println("error running Falcon for Hardhat framework in path %s: %w", path, err)
 						// fmt.Println("Re-Executing tool with foundry framework in path %s: %w", path, err)
 
@@ -67,7 +66,7 @@ func RunTool(compilationResults CompilationResult) error {
 
 					}
 				} else {
-					if err := runFalcon(path, framework); err != nil {
+					if err := runFalcon(path, framework, outputDir); err != nil {
 						return fmt.Errorf("error running Falcon for framework %s in path %s: %w", framework, path, err)
 					}
 				}
@@ -95,7 +94,7 @@ func RunTool(compilationResults CompilationResult) error {
 }
 
 // runFalcon runs the Falcon tool on the specified path with the given framework
-func runFalcon(pathToRunTool, framework string) error {
+func runFalcon(pathToRunTool, framework string, outputDir string) error {
 	// Get root path from environment variable
 	// rootPath := os.Getenv("REPO_OUTPUT_PATH")
 	// if rootPath == "" {
@@ -111,7 +110,7 @@ func runFalcon(pathToRunTool, framework string) error {
 	// Update file paths to save inside scanned_output directory
 	// output_dir := outputDir
 
-	resultsFile := filepath.Join(pathToRunTool, "results.md")
+	resultsFile := filepath.Join(outputDir, "results.md")
 
 	// Run Falcon based on the framework
 	if framework == "foundry" {
@@ -125,7 +124,7 @@ func runFalcon(pathToRunTool, framework string) error {
 	}
 
 	startTime := time.Now()
-	cmd := exec.Command("falcon", ".", "--checklist", "--json", filepath.Join(pathToRunTool, "output.json"), "--filter-paths", "\\.t\\.sol$,\\.s\\.sol$")
+	cmd := exec.Command("falcon", ".", "--checklist", "--json", filepath.Join(outputDir, "output.json"), "--filter-paths", "\\.t\\.sol$,\\.s\\.sol$")
 
 	switch framework {
 	case "hardhat":
