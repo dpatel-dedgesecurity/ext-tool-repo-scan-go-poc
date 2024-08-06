@@ -24,6 +24,10 @@ type CompilationError struct {
 }
 
 func SearchTargets(cloned_repo_path string) ([]byte, error) {
+
+	//create .env from .env.* function
+	sast.CreateEnvFileFromDotEnvStar(cloned_repo_path)
+
 	list_of_detected_paths, err := sast.DetectPackageJson(cloned_repo_path)
 	if err != nil {
 		fmt.Println("❗️ ~ funcmain ~ err ~ Error in Detecting package.json :", err)
@@ -62,6 +66,8 @@ func SearchTargets(cloned_repo_path string) ([]byte, error) {
 		}
 	}
 
+	//
+
 	if len(framework_with_paths) == 0 {
 		err := sast.MoveSolidityFiles(cloned_repo_path)
 		if err != nil {
@@ -70,6 +76,8 @@ func SearchTargets(cloned_repo_path string) ([]byte, error) {
 		if err := sast.SetupHardhatProject(cloned_repo_path); err != nil {
 			log.Fatalf("Failed to set up Hardhat project: %v", err)
 		}
+
+		framework_with_paths["hardhat"] = append(framework_with_paths["hardhat"], cloned_repo_path)
 	}
 
 	result, err := sast.CompileProject(framework_with_paths)

@@ -86,8 +86,9 @@ func RunTool(compilationResults CompilationResult, outputDir string) error {
 	// }
 
 	// Print output for error paths without running Slither
-	for _, path := range errorPaths {
-		fmt.Printf("Path with errors (not running Slither): %s\n", path)
+	for _, e := range compilationResults.Error {
+		fmt.Printf("Directory Path: %s\n", e.DirectoryPath)
+		fmt.Printf("Error Blob: %s\n\n", e.ErrorBlob)
 	}
 
 	return nil
@@ -95,24 +96,10 @@ func RunTool(compilationResults CompilationResult, outputDir string) error {
 
 // runFalcon runs the Falcon tool on the specified path with the given framework
 func runFalcon(pathToRunTool, framework string, outputDir string) error {
-	// Get root path from environment variable
-	// rootPath := os.Getenv("REPO_OUTPUT_PATH")
-	// if rootPath == "" {
-	// 	return fmt.Errorf("ROOT_PATH environment variable is not set")
-	// }
-
-	// // Create the scanned_output directory in the root path
-	// outputDir := filepath.Join(rootPath, "scanned_output")
-	// if err := os.MkdirAll(outputDir, 0755); err != nil {
-	// 	return fmt.Errorf("failed to create scanned_output directory: %w", err)
-	// }
-
-	// Update file paths to save inside scanned_output directory
-	// output_dir := outputDir
 
 	resultsFile := filepath.Join(outputDir, "results.md")
 
-	// Run Falcon based on the framework
+	//configure .toml file if framework is foundary
 	if framework == "foundry" {
 		fmt.Println("🚀 ~ func runFalcon ~ framework:", framework)
 		err := sast.ConfigureFoundryTOML(pathToRunTool) // Assuming sast.ConfigureFoundryTOML is defined elsewhere

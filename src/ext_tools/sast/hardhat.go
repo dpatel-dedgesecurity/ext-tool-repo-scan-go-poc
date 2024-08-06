@@ -13,21 +13,22 @@ import (
 // setupHardhatProject sets up a temporary Hardhat project with a basic configuration and installs necessary packages.
 // scanFiles reads Solidity files and returns unique compiler versions found in them.
 func scanFiles(dir string) ([]string, error) {
-	var versions []string
+	versions := make(map[string]struct{}) // Use a map to store unique version strings
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if !info.IsDir() && strings.HasSuffix(info.Name(), ".sol") {
 			content, err := ioutil.ReadFile(path)
-			fmt.Println("🚀 ~ if!info.IsDir ~ content:", string(content))
 			if err != nil {
 				return fmt.Errorf("error reading file %s: %w", path, err)
 			}
 			version := extractSolidityVersion(string(content))
-			fmt.Println("🚀 ~ if!info.IsDir ~ version:", version)
-			if version != "" && !contains(versions, version) {
-				versions = append(versions, version)
+			if version != "" {
+				parsedVersions := parseVersions(version)
+				for _, v := range parsedVersions {
+					versions[v] = struct{}{} // Store version in map to ensure uniqueness
+				}
 			}
 		}
 		return nil
@@ -36,12 +37,18 @@ func scanFiles(dir string) ([]string, error) {
 		return nil, fmt.Errorf("error walking through directory: %w", err)
 	}
 
-	return versions, nil
+	// Convert map keys to a slice
+	uniqueVersions := make([]string, 0, len(versions))
+	for v := range versions {
+		uniqueVersions = append(uniqueVersions, v)
+	}
+
+	return uniqueVersions, nil
 }
 
 // extractSolidityVersion extracts the Solidity compiler version from the content of a .sol file.
 func extractSolidityVersion(content string) string {
-	re := regexp.MustCompile(`pragma solidity ([0-9]+\.[0-9]+(\.[0-9]+)?)(?:\^\d+\.\d+(\.\d+)?)?`)
+	re := regexp.MustCompile(`pragma\s+solidity\s+((\^|~)?\d+\.\d+\.\d+|>=\d+\.\d+\.\d+( <\d+\.\d+\.\d+)?( \|\| >=\d+\.\d+\.\d+( <\d+\.\d+\.\d+)?)?);`)
 	match := re.FindStringSubmatch(content)
 	if len(match) > 1 {
 		return match[1] // Return the first captured group, which is the version number
@@ -49,19 +56,81 @@ func extractSolidityVersion(content string) string {
 	return ""
 }
 
-// contains checks if a slice contains a specific string.
-func contains(slice []string, item string) bool {
-	for _, a := range slice {
-		if a == item {
-			return true
-		}
+// parseVersions parses the version string into individual version strings.
+func parseVersions(version string) []string {
+	versions := []string{}
+	re := regexp.MustCompile(`\d+\.\d+\.\d+`)
+	matches := re.FindAllString(version, -1)
+	for _, v := range matches {
+		versions = append(versions, v)
 	}
-	return false
+	return versions
+}
+
+// setupHardhatProject sets up a temporary Hardhat project with a basic configuration and installs necessary packages.
+func SetupHardhatProject(directory string) error {
+	fmt.Println("Setting up a temporary Hardhat project...")
+
+	// Define paths for package.json and hardhat.config.js
+	packageJSONPath := filepath.Join(directory, "package.json")
+	hardhatConfigPath := filepath.Join(directory, "hardhat.config.js")
+
+	// Check if package.json exists, if not, create it
+	if _, err := os.Stat(packageJSONPath); os.IsNotExist(err) {
+		fmt.Println("Creating package.json...")
+		packageJSONContent := `{
+			"name": "temporary-hardhat-project",
+			"version": "1.0.0",
+			"main": "index.js",
+			"scripts": {
+				"test": "echo \"Error: no test specified\" && exit 1"
+			},
+			"dependencies": {},
+			"devDependencies": {
+				"hardhat": "^2.0.0",
+				"@nomiclabs/hardhat-ethers": "^2.0.0",
+  				"ethers": "^5.0.0"
+			}
+		}`
+		if err := ioutil.WriteFile(packageJSONPath, []byte(packageJSONContent), 0644); err != nil {
+			return fmt.Errorf("failed to create package.json: %w", err)
+		}
+
+		// Run yarn install to install dependencies
+		fmt.Println("Running 'yarn install' to install dependencies...")
+		cmd := exec.Command("yarn", "install")
+		cmd.Dir = directory
+
+		// Capture and print the output
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("failed to run 'yarn install': %s\nOutput:\n%s", err, output)
+		}
+		fmt.Printf("Installation logs:\n%s", output)
+	}
+
+	// // Check if hardhat.config.js exists, if not, create it
+	// if _, err := os.Stat(hardhatConfigPath); os.IsNotExist(err) {
+	// 	fmt.Println("Creating Hardhat config file...")
+	// 	if err != nil {
+	// 		return fmt.Errorf("failed to create hardhat.config.js: %w", err)
+	// 	}
+
+	// }
+	err := createHardhatConfig(directory, hardhatConfigPath)
+	if err != nil {
+		return fmt.Errorf("🚀 ~ funcSetupHardhatProject ~ err: %w", err)
+	}
+
+	fmt.Println("Hardhat project initialized successfully.")
+	return nil
 }
 
 // createHardhatConfig creates a hardhat.config.js file with the specified compiler versions.
-func createHardhatConfig(dir, filePath string) error {
+func createHardhatConfig(dir string, filePath string) error {
+
 	// Get unique compiler versions from Solidity files
+	//filePath := dir + "/hardhat.config.js"
 	versions, err := scanFiles(dir)
 	fmt.Println("🚀 ~ funccreateHardhatConfig ~ dir:", dir)
 	fmt.Println("🚀 ~ funccreateHardhatConfig ~ versions:", versions)
@@ -170,8 +239,13 @@ func CompileHardhatProject(dir string) (string, error) {
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	fmt.Println(string(output)) // Print output to console
+
 	if err != nil {
+
+		//disable network in config function called here------------------
+
 		return "", fmt.Errorf("hardhat compile error: %s", err)
+
 	}
 
 	return dir, nil

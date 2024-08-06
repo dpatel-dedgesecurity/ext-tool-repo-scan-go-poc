@@ -105,13 +105,28 @@ func CompileProject(frameworks_with_path map[string][]string) (*CompilationResul
 				continue
 			}
 
-			var filepath string
+			var filePath1  string
 			var err error
+			fmt.Println(filePath1)
 			switch framework {
 			case "foundry":
-				filepath, err = CompileFoundryProject(dir)
+				filePath1, err = CompileFoundryProject(dir)
 			case "hardhat":
-				filepath, err = CompileHardhatProject(dir)
+				configFiles := []string{"hardhat.config.ts", "hardhat.config.js"}
+
+				var configPath string
+				for _, fileName := range configFiles {
+					potentialPath := filepath.Join(dir, fileName)
+					if _, err := os.Stat(potentialPath); !os.IsNotExist(err) {
+						configPath = potentialPath
+						break
+					}
+				}
+				err := RemoveNetworksObject(configPath)
+				if err != nil {
+					fmt.Println("🚀 ~ RemoveNetworksObject ~ err:", err)
+				}
+				filePath1, err = CompileHardhatProject(dir)
 			default:
 				err = fmt.Errorf("unknown framework: %s", framework)
 			}
@@ -123,7 +138,7 @@ func CompileProject(frameworks_with_path map[string][]string) (*CompilationResul
 				})
 			} else {
 				result.Success = append(result.Success, FrameworkCompilation{
-					DirectoryPath: filepath,
+					DirectoryPath: filePath1,
 					Framework:     framework,
 					Force:         false, // Adjust as needed
 				})

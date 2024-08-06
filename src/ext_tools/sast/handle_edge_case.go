@@ -3,12 +3,16 @@ package sast
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
-func CreateEnvFileFromDotEnvStar(dotEnvStarPath string) {
-	envFilePath := dotEnvStarPath[:strings.LastIndex(dotEnvStarPath, "/")] + "/.env"
+func CreateEnvFileFromDotEnvStar(clonedRepoPath string) {
+	// Define the path to the .env file in the root directory of the cloned repository
+	envFilePath := filepath.Join(clonedRepoPath, ".env")
 
 	// Check if .env file already exists
 	if _, err := os.Stat(envFilePath); err == nil {
@@ -16,10 +20,32 @@ func CreateEnvFileFromDotEnvStar(dotEnvStarPath string) {
 		return
 	}
 
-	// Read the content of .env.* file
-	dotEnvStarContent, err := ioutil.ReadFile(dotEnvStarPath)
+	var dotEnvStarPath string
+	var dotEnvStarContent []byte
+	err := filepath.WalkDir(clonedRepoPath, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if strings.HasSuffix(d.Name(), ".env") {
+			dotEnvStarPath = path
+			dotEnvStarContent, err = ioutil.ReadFile(dotEnvStarPath)
+			if err != nil {
+				fmt.Printf("Error reading .env file at %s: %s\n", dotEnvStarPath, err)
+				return err
+			}
+			return nil // Stop walking further once the file is found
+		}
+		return nil
+	})
+
 	if err != nil {
-		fmt.Printf("Error reading .env.* file at %s: %s\n", dotEnvStarPath, err)
+		fmt.Printf("Error finding .env file in the cloned repository: %s\n", err)
+		return
+	}
+
+	if dotEnvStarPath == "" {
+		fmt.Println("No .env file found in the cloned repository.")
 		return
 	}
 
@@ -30,7 +56,7 @@ func CreateEnvFileFromDotEnvStar(dotEnvStarPath string) {
 		return
 	}
 
-	fmt.Printf("Created .env file at %s with content from .env.* file at %s\n", envFilePath, dotEnvStarPath)
+	fmt.Printf("Created .env file at %s with content from .env file at %s\n", envFilePath, dotEnvStarPath)
 }
 
 // Config represents the structure of the Hardhat config file.
@@ -135,5 +161,20 @@ func writeModifiedContent(filePath, content string) error {
 	}
 
 	fmt.Printf("Successfully removed 'networks' object from %s.\n", filePath)
+	return nil
+}
+
+// RunGitInit initializes a Git repository at the given path.
+func RunGitInit(path string) error {
+	cmd := exec.Command("git", "init")
+	cmd.Dir = path // Set the working directory for the command
+
+	err := cmd.Run() // will wait for command to return
+	if err != nil {
+		log.Printf("Failed to run git init in '%s': %v", path, err)
+		return err
+	}
+
+	log.Printf("Git repository initialized successfully in '%s'.", path)
 	return nil
 }
